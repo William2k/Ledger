@@ -2,6 +2,8 @@
 using Core.Interfaces;
 using Data;
 using Data.Interfaces;
+using Data.Models;
+using LedgerApp;
 using Microsoft.Extensions.DependencyInjection;
 
 public class Program
@@ -13,7 +15,10 @@ public class Program
 
         var paymentService = serviceProvider.GetService<IPaymentService>();
 
-        Console.WriteLine("Hi");
+        if(paymentService == null) 
+            throw new ArgumentNullException(nameof(paymentService));
+
+        App.Start(paymentService);
     }
 
     private static ServiceProvider SetupDI() => new ServiceCollection()

@@ -1,4 +1,5 @@
 ﻿using Core.Interfaces;
+using Data;
 using Data.Interfaces;
 using Data.Models;
 
@@ -22,15 +23,16 @@ public class PaymentService : IPaymentService
         if (payment == null)
             throw new ArgumentNullException(nameof(payment));
 
-        account.Balance -= payment.Amount;
+        var newAccountDetails = GetCopy(account);
+        newAccountDetails.Balance = CalculateBalance(payment.Direction, account.Balance, payment.Amount);
 
-        if (account.Balance < 0)
+        if (newAccountDetails.Balance < 0)
             throw new Exception("Account doesn't have enough funds for payment");
 
         try
         {
             payment = _repository.AddOrUpdatePayment(payment);
-            account = _repository.AddOrUpdateAccount(account);
+            account = _repository.AddOrUpdateAccount(newAccountDetails);
         }
         catch (Exception)
         {
@@ -43,6 +45,19 @@ public class PaymentService : IPaymentService
         return account;
     }
 
+    private decimal CalculateBalance(Direction direction, decimal currentBalance, decimal amount)
+    {
+        switch (direction)
+        {
+            case Direction.Outbound:
+                return currentBalance -= amount;
+            case Direction.Inbound:
+                return currentBalance += amount;
+            default:
+                throw new ArgumentException($"Invalid direction: {direction}");
+        }
+    }
+
     private void ValidateAccountInfo(Account account)
     {
         if (account == null || !account.Id.HasValue)
@@ -53,4 +68,14 @@ public class PaymentService : IPaymentService
         if (dbAccount == null || !dbAccount.IsActive || dbAccount.Modified != account.Modified)
             throw new Exception("Payment cannot be processed");
     }
+
+    private Account GetCopy(Account account) => new()
+    {
+        Id = account.Id,
+        Balance = account.Balance,
+        Created = account.Created,
+        IsActive = account.IsActive,
+        Modified = account.Modified,
+        Owner = account.Owner,
+    };
 }

@@ -12,17 +12,18 @@ public class Repository : IRepository
 
     public Account AddOrUpdateAccount(Account account)
     {
-        account.Created = DateTime.Now;
-        account.Modified = DateTime.Now;
-
         if (!account.Id.HasValue)
         {
+            account.Created = DateTime.Now;
+            account.IsActive = true;
+
             do
             {
                 account.Id = Guid.NewGuid();
             } while (Accounts.ContainsKey(account.Id.Value));
         }
 
+        account.Modified = DateTime.Now;
         Accounts[account.Id.Value] = account;
 
         return account;
@@ -41,6 +42,8 @@ public class Repository : IRepository
 
         if (!payment.Id.HasValue)
         {
+            payment.IsActive = true;
+
             do
             {
                 payment.Id = Guid.NewGuid();
