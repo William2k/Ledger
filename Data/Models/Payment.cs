@@ -13,4 +13,6 @@ public record Payment
     public required string OtherEntity { get; set; }
 
     public bool IsActive { get; set; }
+
+    public Guid AccountId { get; set; }
 }

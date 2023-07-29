@@ -23,6 +23,9 @@ public class PaymentService : IPaymentService
         if (payment == null)
             throw new ArgumentNullException(nameof(payment));
 
+        if(payment.AccountId == Guid.Empty)
+            throw new ArgumentException(nameof(payment.AccountId));
+
         var newAccountDetails = GetCopy(account);
         newAccountDetails.Balance = CalculateBalance(payment.Direction, account.Balance, payment.Amount);
 

@@ -74,6 +74,7 @@ internal static class App
             OtherEntity = otherEntity,
             Amount = amount,
             Direction = direction,
+            AccountId = Account.Id.Value
         };
 
 
